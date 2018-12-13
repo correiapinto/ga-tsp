@@ -12,3 +12,8 @@ class LoadPoints:
             y.append(random.randint(-20, 20))
         return x, y
 
+    def create_pre_defined_points(self):
+        x = [-10, -5, 5, 10, 10, 5, -5, -10]
+        y = [5, 7, 10, 5, -3, -7, -5, -10]
+        return x, y
+

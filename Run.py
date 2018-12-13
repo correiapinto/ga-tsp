@@ -10,8 +10,12 @@ class Run():
         self.population_size = 50
         self.origin = 0  # Define the origin point index
 
-        self.x_points = LoadPoints().create_random_points()[0]
-        self.y_points = LoadPoints().create_random_points()[1]
+        # Uncomment for random points creation
+        # self.x_points = LoadPoints().create_random_points()[0]
+        # self.y_points = LoadPoints().create_random_points()[1]
+
+        self.x_points = LoadPoints().create_pre_defined_points()[0]
+        self.y_points = LoadPoints().create_pre_defined_points()[1]
 
         # It will mutate x% of the time
         self.mutation_rate = 0.01
@@ -24,7 +28,6 @@ class Run():
         return pairs_of_points
 
     def replace_and_pop(self, element, replacements):
-        # print(replacements)
         element = replacements[-1]
         replacements.pop()
         return element
@@ -32,7 +35,9 @@ class Run():
     # Perform the crossover operation. The breaking point is at a random position
 
     def crossover(self, parent1, parent2):
-        break_point = random.randint(1, len(parent1))
+        # Todo!
+        #break_point = random.randint(1, len(parent1))
+        break_point = 3
         parent1_used_slice = parent1[0:break_point]
         parent2_used_slice = parent2[break_point:]
         parent1_not_used_slice = parent1[break_point:]
@@ -57,11 +62,11 @@ class Run():
                 break
         return (point_a, point_b)
 
+    # Swaps position i for position j on list a and returns a list with the swapped poitions
     def swap(self, a, i, j):
         cp = list(a)
-        temp = cp[i]
-        a[i] = cp[j]
-        a[j] = temp
+        cp[i] = a[j]
+        cp[j] = a[i]
         return cp
 
     def shuffle(self, picked_one):
@@ -77,18 +82,26 @@ class Run():
                 new_pop.append(self.shuffle(picked_one))
         return new_pop
 
+    # Create new population based on the fitness list of the last population
     def new_population(self, last_generation, fitnesses):
         population = list()
         for i in range(self.population_size):
+
             index_parentA = self.pick_one(fitnesses)
             index_parentB = self.pick_one(fitnesses)
 
             parentA = last_generation[index_parentA]
             parentB = last_generation[index_parentB]
 
+            # In case both parents are the same, no crossover will occur
+            # for that reason, we mutate one of the parents and do the crossover after\
+            # Todo! It is not mutating
             if parentA == parentB:
-                for j in range(4):
-                    parentA = self.mutate(parentA)
+                print("1:")
+                print(parentA)
+                parentA = self.mutate(parentA)
+                print("2:")
+                print(parentA)
 
             child = self.crossover(parentA, parentB)
             population.append(child)
@@ -125,25 +138,33 @@ class Run():
         return normalized_fits
 
     # For the mutation, I just swap two of the cities randomly
-    def mutate(self, points):
-        swappers = self.pick_two_swappers(points)
-        new_points = self.swap(points, swappers[0], swappers[1])
+    def mutate(self, points, n_swaps = 2):
+        new_points = list(points)
+        for i in range(n_swaps):
+            swappers = self.pick_two_swappers(new_points)
+            new_points = self.swap(new_points, swappers[0], swappers[1])
         return new_points
 
     def run(self):
         cities = self.get_points()
+        # Set the record distance as being the biggest possible
         rec_dist = float('inf')
         # initialize the first population by shuffling
-
         new_pop = self.first_population(cities)
+
+
         for i in range(self.n_iterations):
-            print("Iteration "+str(i))
+            # print("Iteration "+str(i))
             distances = list()
             fitness = list()
             for j in range(self.population_size):
+                # Get a list with the distances of each element in the population
                 distances.append(self.calc_distance(new_pop[j]))
+                # Create a list with the fitnesses (the inverse of the values on the distances list)
                 fitness.append(self.calc_fitness(distances[j]))
+            # Normalize the fitness list so that the sum equals 1
             fitness = self.normalize_fitness(fitness)
+            # Create new population based on the fitness list
             new_pop = self.new_population(new_pop, fitness)
 
             index = self.pick_one(fitness)
