@@ -2,7 +2,7 @@ import random
 
 class LoadPoints:
     def __init__(self):
-        self.n_points = 10
+        self.n_points = 30
 
     def create_random_points(self):
         x = list()

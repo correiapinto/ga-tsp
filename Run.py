@@ -11,11 +11,11 @@ class Run():
         self.origin = 0  # Define the origin point index
 
         # Uncomment for random points creation
-        # self.x_points = LoadPoints().create_random_points()[0]
-        # self.y_points = LoadPoints().create_random_points()[1]
+        self.x_points = LoadPoints().create_random_points()[0]
+        self.y_points = LoadPoints().create_random_points()[1]
 
-        self.x_points = LoadPoints().create_pre_defined_points()[0]
-        self.y_points = LoadPoints().create_pre_defined_points()[1]
+        # self.x_points = LoadPoints().create_pre_defined_points()[0]
+        # self.y_points = LoadPoints().create_pre_defined_points()[1]
 
         # It will mutate x% of the time
         self.mutation_rate = 0.01
@@ -24,9 +24,10 @@ class Run():
     def get_points(self):
         pairs_of_points = list(zip(self.x_points, self.y_points))
         # Define the origin
-        self.swap(pairs_of_points, 0, self.origin)
+        pairs_of_points = self.swap(pairs_of_points, 0, self.origin)
         return pairs_of_points
 
+    # Todo! Something is wrong with this method
     def replace_and_pop(self, element, replacements):
         element = replacements[-1]
         replacements.pop()
@@ -35,7 +36,6 @@ class Run():
     # Perform the crossover operation. The breaking point is at a random position
 
     def crossover(self, parent1, parent2):
-        # Todo!
         #break_point = random.randint(1, len(parent1))
         break_point = 3
         parent1_used_slice = parent1[0:break_point]
@@ -97,11 +97,8 @@ class Run():
             # for that reason, we mutate one of the parents and do the crossover after\
             # Todo! It is not mutating
             if parentA == parentB:
-                print("1:")
-                print(parentA)
                 parentA = self.mutate(parentA)
-                print("2:")
-                print(parentA)
+
 
             child = self.crossover(parentA, parentB)
             population.append(child)
