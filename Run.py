@@ -6,7 +6,7 @@ import numpy as np
 
 class Run():
     def __init__(self):
-        self.n_iterations = 5000
+        self.n_iterations = 2500
         self.population_size = 50
         self.origin = 0  # Define the origin point index
 
@@ -32,22 +32,19 @@ class Run():
     # Perform the crossover operation. The breaking point is at a random position
 
     def crossover(self, parent1, parent2):
-        if (parent1 == parent2):
+        break_point = random.randint(1, len(parent1))
+        parent1_used_slice = parent1[0:break_point]
+        parent2_used_slice = parent2[break_point:]
+        parent1_not_used_slice = parent1[break_point:]
+        parent2_not_used_slice = parent2[:break_point]
+        if parent1_used_slice == parent2_not_used_slice:
             res = parent1
         else:
-            break_point = random.randint(1, len(parent1))
-            parent1_used_slice = parent1[0:break_point]
-            parent2_used_slice = parent2[break_point:]
-            parent1_not_used_slice = parent1[break_point:]
-            parent2_not_used_slice = parent2[:break_point]
-            if parent1_used_slice == parent2_not_used_slice:
-                res = parent1
-            else:
-                replacements = list(set(parent2_not_used_slice) - set(parent1_used_slice))
-                to_replace = list(set(parent2_used_slice).intersection(parent1_used_slice))
-                slice2 = list(
-                    map(lambda x: x if x not in to_replace else self.replace_and_pop(x, replacements), parent2_used_slice))
-                res = parent1_used_slice + slice2
+            replacements = list(set(parent2_not_used_slice) - set(parent1_used_slice))
+            to_replace = list(set(parent2_used_slice).intersection(parent1_used_slice))
+            slice2 = list(
+                map(lambda x: x if x not in to_replace else self.replace_and_pop(x, replacements), parent2_used_slice))
+            res = parent1_used_slice + slice2
         return res
 
     # Chooses the two cities to swap
@@ -90,7 +87,8 @@ class Run():
             parentB = last_generation[index_parentB]
 
             if parentA == parentB:
-                parentA = self.mutate(parentA)
+                for j in range(4):
+                    parentA = self.mutate(parentA)
 
             child = self.crossover(parentA, parentB)
             population.append(child)
